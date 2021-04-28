@@ -24,11 +24,19 @@ class PhotoController extends Controller
 
     public function storage(Request $request)
     {
-        $files = $request->allFiles();
-        if (count($files) > 0) 
+        $file = $request->file('image');
+        if ($file); 
         {
-            return $files;
+            $ext = $file->extension();
+            $model = $this->model->create(['description' => 'photo', 'filename' => 'f', 'ext' => 'e']);
+            $name = 'image-' . str_pad($model->id, 5,"0", STR_PAD_LEFT).'.'.$ext;            
+            $file->storeAs('', $name);
+            $model->description = $name;
+            $model->filename = $name;
+            $model->ext = $ext;
+            $model->save();
+            return response()->json(['model' => $model->toArray()], 201);
         }
-        return [];
+        return response()->json(['status' => 'error'], 404);
     }
 }
